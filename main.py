@@ -12,6 +12,7 @@ def show_message():
     inputs = [
         entries["ent1"].get(), entries["ent2"].get(), entries["ent3"].get(), entries["ent4"].get(), entries["ent5"].get(),
         entries["ent6"].get(), entries["ent7"].get(), entries["ent8"].get(), entries["ent9"].get(), entries["ent10"].get(),
+        entries["ent11"].get(), entries["ent12"].get(), entries["ent13"].get(), entries["ent14"].get(), entries["ent15"].get(),
         mat_entries["mat1"].get(), mat_entries["mat2"].get(), mat_entries["mat3"].get()
     ]
 
@@ -52,32 +53,32 @@ def show_message():
     T_start_cool = int(entries["ent2"].get())
     T_end_cool = int(entries["ent3"].get())
     cooling_time = (T_start_cool - T_end_cool) / cooling_rate
-    steps_cool = int(cooling_time / dt)
+    steps_cool = int(cooling_time / float(entries["ent11"].get()))
     T_cool = np.linspace(T_start_cool, T_end_cool, steps_cool)
 
     heating_rate = float(entries["ent4"].get())  # K/s
     T_start_heat = int(entries["ent3"].get())
     T_end_heat = int(entries["ent5"].get())
     heating_time = (T_end_heat - T_start_heat) / heating_rate
-    steps_heat = int(heating_time / dt)
+    steps_heat = int(heating_time / float(entries["ent12"].get()))
     T_heat = np.linspace(T_start_heat, T_end_heat, steps_heat)
 
     hold_time = float(entries["ent6"].get()) * 3600  # hours to seconds
-    steps_iso = int(hold_time / dt)
+    steps_iso = int(hold_time / float(entries["ent13"].get()))
     T_iso = np.full(steps_iso, T_end_heat)
 
     cooling_rate2 = float(entries["ent7"].get())  # K/s
     T_start_cool2 = int(entries["ent5"].get())
     T_end_cool2 = int(entries["ent8"].get())
     cooling_time2 = (T_start_cool2 - T_end_cool2) / cooling_rate2
-    steps_cool2 = int(cooling_time2 / dt)
+    steps_cool2 = int(cooling_time2 / float(entries["ent14"].get()))
     T_cool2 = np.linspace(T_start_cool2, T_end_cool2, steps_cool2)
 
     heating_rate2 = float(entries["ent9"].get())  # K/s
     T_start_heat2 = int(entries["ent8"].get())
     T_end_heat2 = int(entries["ent10"].get())
     heating_time2 = (T_end_heat2 - T_start_heat2) / heating_rate2
-    steps_heat2 = int(heating_time2 / dt)
+    steps_heat2 = int(heating_time2 / float(entries["ent14"].get()))
     T_heat2 = np.linspace(T_start_heat2, T_end_heat2, steps_heat2)
 
 ##################################################################SEPARATE
@@ -205,8 +206,8 @@ def create_results_table(time_hours, T_profile, Tf, segment_lengths):
         segments.append((start, end, name))
         start = end
 
-    # Populate table with sample data (every 100 steps for performance)
-    for i in range(0, len(time_hours), 100):
+    # Populate table with sample data (every 10 steps for performance)
+    for i in range(0, len(time_hours), 10):
         # Find which segment this step belongs to
         segment_name = next(name for start, end, name in segments if start <= i < end)
         temp_diff = T_profile[i] - Tf[i]
@@ -231,7 +232,7 @@ def create_results_table(time_hours, T_profile, Tf, segment_lengths):
                 # Write headers
                 f.write(",".join(columns) + "\n")
                 # Write data
-                for i in range(0, len(time_hours), 100):
+                for i in range(0, len(time_hours), 1):
                     segment_name = next(name for start, end, name in segments if start <= i < end)
                     temp_diff = T_profile[i] - Tf[i]
                     line = (
@@ -261,16 +262,21 @@ main_frame.pack(fill=tk.BOTH, expand=True)
 data1_frame = tk.LabelFrame(main_frame, text="Simulation Data", padx=10, pady=10)
 data1_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10)
 fields = [
-    "Enter cooling rate K/s",
+    "Simulation Data", "Enter cooling rate K/s",
     "Enter start temp for cooling K",
     "Enter start temp for heating (same as end temp for cooling) K",
     "Enter heating rate K/s",
     "Enter end heating temp(same as isotermic hold temp," + "\n" + " and start temp of second cooling period) K",
-    "Enter isotermic hold time 1 or 0.5 hr",
+    "Enter isotermic hold time 1 or 0.5 hr"
     "Enter second cooling rate K/s",
     "Enter second cooling end temp " + "\n" + "(same as start temp for second heating) K",
     "Enter second heating rate K/s",
-    "Enter second heating end temp K"
+    "Enter second heating end temp K",
+    "dt for cooling 1 Time step (seconds)" ,       #ent11
+    "dt for heating 1 Time step (seconds)",        #ent12
+    "dt for isotermic hold Time step (seconds)",   #ent13
+    "dt for cooling 2 Time step (seconds)",        #ent14
+    "dt for heating 2 Time step (seconds)"         #ent15
     ]
 
 
@@ -308,7 +314,7 @@ A_ent.grid(row=4, column=1, sticky="w", padx=6, pady=6)
 
 ################### A #########################
 
-##################TRASH#####################################
+##################Buttons#####################################
 button_frame = tk.Frame(root)
 button_frame.pack(pady=20)
 
@@ -331,6 +337,16 @@ entries["ent7"].insert(0, 0.7)
 entries["ent8"].insert(0, 300)
 entries["ent9"].insert(0, 0.3)
 entries["ent10"].insert(0, 500)
+
+#dt
+entries["ent11"].insert(0, 1.0)
+entries["ent12"].insert(0, 1.0)
+entries["ent13"].insert(0, 1.0)
+entries["ent14"].insert(0, 1.0)
+entries["ent15"].insert(0, 1.0)
+
+
+
 mat_entries["mat1"].insert(0, 315000) #delta h star
 mat_entries["mat2"].insert(0, 0.5) # x
 mat_entries["mat3"].insert(0, 0.7) # beta
